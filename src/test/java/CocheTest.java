@@ -1,6 +1,8 @@
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import java.io.ByteArrayOutputStream;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,6 +12,10 @@ import com.fermax.spuche.java.pruebas.Persona;
 
 public class CocheTest
 {
+	// Variables conteniendo objetos ByteArrayOutputStream que permiten testear salida de consola
+	private final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+	private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+	
 
 	private Coche coche;
 	private Persona duenyo;
@@ -25,7 +31,6 @@ public class CocheTest
 	{
 		duenyo = mock(Persona.class);
 		modeloCoche = mock(Modelo.class);
-		
 	}
 
 	/**
@@ -302,6 +307,9 @@ public class CocheTest
 		}
 
 	}
+	
+	
+	
 	
 	
 }
