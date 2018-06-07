@@ -15,7 +15,7 @@ public class CocheTest
 	private Persona duenyo;
 	private Modelo modeloCoche;
 	String matricula;
-
+	
 	/**
 	 * Inicializacion de objetos y variables usados con frecuancia.
 	 * duenyo y modeloCoche mockeados, necesarios para la instanciacion de un Coche
@@ -25,8 +25,7 @@ public class CocheTest
 	{
 		duenyo = mock(Persona.class);
 		modeloCoche = mock(Modelo.class);
-		coche = new Coche(duenyo, modeloCoche);
-		matricula = coche.getMatricula();
+		
 	}
 
 	/**
@@ -35,6 +34,9 @@ public class CocheTest
 	@Test
 	public void matriculaShouldBeLength7()
 	{
+		coche = new Coche(duenyo, modeloCoche);
+		matricula = coche.getMatricula();
+		
 		assertEquals("La matricula no tiene una longitud de 7 " + matricula, 7, matricula.length());
 
 	}
@@ -46,6 +48,9 @@ public class CocheTest
 	@Test
 	public void matriculaShouldHave3CapLetters()
 	{
+		coche = new Coche(duenyo, modeloCoche);
+		matricula = coche.getMatricula();
+		
 		boolean error = false;
 		String letrasMatricula = matricula.substring(4, 7);
 		char[] arrayLetras = letrasMatricula.toCharArray();
@@ -69,6 +74,9 @@ public class CocheTest
 	@Test
 	public void matriculaShouldHave4Numbers()
 	{
+		coche = new Coche(duenyo, modeloCoche);
+		matricula = coche.getMatricula();
+		
 		boolean error = false;
 		String numerosMatricula = matricula.substring(0, 4);
 		char[] arrayNumeros = numerosMatricula.toCharArray();
@@ -91,10 +99,12 @@ public class CocheTest
 	 * ejecucion normal con parametros esperados
 	 */
 	@Test
-	public void velocidadMaxShouldBe()
+	public void velocidadMaxShouldBeCool()
 	{
 		try
 		{
+			coche = new Coche(duenyo, modeloCoche);
+			
 			when(duenyo.getPersonalidad()).thenReturn(3); //Mockeo de personalidad tipo 3
 			when(modeloCoche.getVelocidadMax()).thenReturn(150); //Mockeado modelo de coche con velocidad maxima 180km/h
 			int velocidad = coche.getVelocidadMax();
@@ -117,6 +127,8 @@ public class CocheTest
 	{
 		try 
 		{
+			coche = new Coche(duenyo, modeloCoche);
+			
 			coche.getVelocidadMax();
 			fail("Deberia haber saltado una excepcion");
 		}
@@ -125,5 +137,171 @@ public class CocheTest
 			assertNotNull(e);
 		}
 	}
+	
+	/**
+	 * Se comprueba que el calculo de la velocidad maxima lance una excepcion cuando se intenta
+	 * proporcionar una personalidad incorrecta
+	 */
+	@Test
+	public void velocidadMaxShouldFail2()
+	{
+		try 
+		{
+			coche = new Coche(duenyo, modeloCoche);
+			
+			when(duenyo.getPersonalidad()).thenReturn(4); //Mockeo de personalidad tipo 4
+			when(modeloCoche.getVelocidadMax()).thenReturn(150); //Mockeado modelo de coche con velocidad maxima 180km/h
+			coche.getVelocidadMax();
+			fail("Deberia haber saltado una excepcion");
+		}
+		catch(Exception e)
+		{
+			assertNotNull(e);
+		}
+	}
+	
+	/**
+	 * Se comprueba que el riesgo de accidente sea correcto si se introducen parametros
+	 * dentro de los rangos esperados
+	 */
+	@Test
+	public void accidentRiskShouldBeCool()
+	{
+		// Mockeamos un coche de un modelo viejo y poco seguro 
+		// con 200 km/h vel max y un conductor borracho y temerario
+		when(duenyo.getPersonalidad()).thenReturn(3);
+		when(duenyo.isDrunk()).thenReturn(true);
+		when(modeloCoche.getVelocidadMax()).thenReturn(200);
+		when(modeloCoche.getProbAccidente()).thenReturn(40);
+		
+		coche = new Coche(duenyo, modeloCoche);
+		
+		//El coche se pone a 500 km/h (menos si este numero supera la vel maxima)
+		for(int i=0;i<100;i++)
+		{
+			coche.increaseVel5();
+		}
+		
+		
+		assertEquals(100, coche.calcProbAccidente());
+	}
+	
+	/**
+	 * Se comprueba que el riesgo de accidente sea correcto si se introducen parametros
+	 * dentro de los rangos esperados
+	 */
+	@Test
+	public void accidentRiskShouldBeCool2()
+	{
+		// Mockeamos un coche de un modelo muy seguro con 
+		// 110 km/h vel max y un conductor sobrio y tranquilo
+		when(duenyo.getPersonalidad()).thenReturn(1);
+		when(duenyo.isDrunk()).thenReturn(false);
+		when(modeloCoche.getVelocidadMax()).thenReturn(110);
+		when(modeloCoche.getProbAccidente()).thenReturn(5);
+		
+		coche = new Coche(duenyo, modeloCoche);
+		
+		//El coche se pone a 75 km/h
+		for(int i=0;i<15;i++)
+		{
+			coche.increaseVel5();
+		}
+		
+		// Hechos a mano los calculos resultan:
+		// 5 (riesgo base del modelo) + 0 (riesgo añadido por velocidad) = 5
+		assertEquals(5, coche.calcProbAccidente());
+	}
+	
+	/**
+	 * Comprueba que al calcular la probabilidad de accidente se necesita saber
+	 * si el conductor esta borracho, su personalidad y la probabilidad base de accidente
+	 * del modelo de coche
+	 */
+	@Test
+	public void accidentCalculatorShouldInvoke()
+	{
+		coche = new Coche(duenyo, modeloCoche);
+		coche.calcProbAccidente();
+		
+		verify(duenyo,atLeast(1)).isDrunk();
+		verify(duenyo,atLeast(1)).getPersonalidad();
+		verify(modeloCoche,atLeast(1)).getProbAccidente();
+	}
+	
+	/**
+	 * Si el coche recibe dos hostias, su valor cae a la cuarta parte
+	 */
+	@Test
+	public void valueShouldBeDecreased()
+	{
+		try 
+		{
+			when(duenyo.getPersonalidad()).thenReturn(1);
+			coche = new Coche(duenyo, modeloCoche);
+			
+			int valorInit = coche.getValor();
+			
+			coche.darHostiaAlCoche();
+			coche.darHostiaAlCoche();
+			
+			assertEquals(valorInit/4, coche.getValor());
+		}
+		
+		catch (Exception e) {
+			fail();
+		}
 
+	}
+	
+	/**
+	 * Si el coche recibe demasiadas hostias, pasa a no valer nada
+	 */
+	@Test
+	public void valueShouldBeDecreased2()
+	{
+		try 
+		{
+			when(duenyo.getPersonalidad()).thenReturn(3);
+			coche = new Coche(duenyo, modeloCoche);
+						
+			for(int i=0;i<100;i++)
+			{
+				coche.darHostiaAlCoche();
+			}
+			assertEquals(0, coche.getValor());
+		}
+		
+		catch (Exception e) {
+			fail();
+		}
+
+	}
+	
+	/**
+	 * Si el coche recibe varias hostias, cambia de estado
+	 */
+	@Test
+	public void estadoShouldBeX()
+	{
+		try 
+		{
+			when(duenyo.getPersonalidad()).thenReturn(2);
+			coche = new Coche(duenyo, modeloCoche);
+						
+			for(int i=0;i<100;i++)
+			{
+				coche.darHostiaAlCoche();
+			}
+			
+			assertEquals("Basura", coche.getEstado());
+		}
+		
+		catch (Exception e) {
+			fail();
+		}
+
+	}
+	
+	
 }
