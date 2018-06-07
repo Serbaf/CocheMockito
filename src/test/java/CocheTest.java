@@ -16,6 +16,10 @@ public class CocheTest
 	private Modelo modeloCoche;
 	String matricula;
 
+	/**
+	 * Inicializacion de objetos y variables usados con frecuancia.
+	 * duenyo y modeloCoche mockeados, necesarios para la instanciacion de un Coche
+	 */
 	@Before
 	public void before()
 	{
@@ -25,6 +29,9 @@ public class CocheTest
 		matricula = coche.getMatricula();
 	}
 
+	/**
+	 * Se comprueba que la matricula tenga la longitud deseada
+	 */
 	@Test
 	public void matriculaShouldBeLength7()
 	{
@@ -32,6 +39,10 @@ public class CocheTest
 
 	}
 
+	/**
+	 * Se comprueba que los tres ultimos caracteres de la matricula sean letras mayusculas del 
+	 * rango A-Z
+	 */
 	@Test
 	public void matriculaShouldHave3CapLetters()
 	{
@@ -39,6 +50,7 @@ public class CocheTest
 		String letrasMatricula = matricula.substring(4, 7);
 		char[] arrayLetras = letrasMatricula.toCharArray();
 
+		//Comprobacion de que son letras A-Z (correspondencias 65-90 en codigo ASCII)
 		for (char letra : arrayLetras)
 		{
 			if (((int) letra) < 65 || ((int) letra) > 90)
@@ -51,6 +63,9 @@ public class CocheTest
 				error);
 	}
 
+	/**
+	 * Se comprueba que los 4 primeros caracteres de la matricula sean números del rango 0-9
+	 */
 	@Test
 	public void matriculaShouldHave4Numbers()
 	{
@@ -60,6 +75,8 @@ public class CocheTest
 
 		for (char numero : arrayNumeros)
 		{
+			
+			//Comprobacion de que son numeros 0-9 (correspondencias 48-57 en codigo ASCII)
 			if (((int) numero) < 48 || ((int) numero) > 57)
 			{
 				error = true;
@@ -69,6 +86,10 @@ public class CocheTest
 		assertFalse("Alguno de los primeros 4 caracteres de la matricula no es " + "un numero: " + matricula, error);
 	}
 
+	/**
+	 * Se comprueba que el calculo de la velocidad maxima sea correcto para un caso de
+	 * ejecucion normal con parametros esperados
+	 */
 	@Test
 	public void velocidadMaxShouldBe()
 	{
@@ -85,6 +106,12 @@ public class CocheTest
 		}
 	}
 	
+	
+	/**
+	 * Se comprueba que el calculo de la velocidad maxima lance una excepcion cuando se trata
+	 * de calcular la velocidad sin antes haber configurado los metodos necesarios en los objetos
+	 * mock (duenyo.getPersonalidad() y modeloCoche.getVelocidadMax() )
+	 */
 	@Test
 	public void velocidadMaxShouldFail()
 	{
